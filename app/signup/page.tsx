@@ -1,11 +1,31 @@
 'use client'
+import useFetch from '@/hooks/useFetch';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { Country, STORAGE_KEY } from '@/lib/const';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 const SignupPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    name: '',
+    birth: '',
+    sex: '',
+    country: '',
+  });
 
-  // Mảng các trường dữ liệu
+  const [errors, setErrors] = useState({
+    name: '',
+    birth: '',
+    sex: '',
+    country: '',
+  });
+
+  const { data: countries, loading, error } = useFetch<Country[]>('https://restcountries.com/v3.1/all');
+
+  const [storedValue, setValue] = useLocalStorage(STORAGE_KEY) 
+
   const steps = [
     {
       label: 'Enter your name',
@@ -15,56 +35,109 @@ const SignupPage = () => {
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="Name"
+          className={errors.name ? 'nes-input is-error' : 'nes-input'}
           required
         />
       ),
+      error: (
+        <span className="nes-text is-error">{errors.name}</span>
+      )
     },
     {
-      label: 'Enter your email',
+      label: 'Enter your date of birth',
       input: (
         <input
-          type="email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          placeholder="Email"
+          type="date"
+          value={formData.birth}
+          onChange={(e) => setFormData({ ...formData, birth: e.target.value })}
+          placeholder="Birth"
+          className={errors.birth ? 'nes-input is-error' : 'nes-input'}
           required
         />
       ),
+      error: (
+        <span className="nes-text is-error">{errors.birth}</span>
+      )
     },
     {
-      label: 'Enter your password',
+      label: 'Enter your sex',
       input: (
-        <input
-          type="password"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          placeholder="Password"
-          required
-        />
+
+        <div className="nes-select">
+          <select id="options"
+            value={formData.sex}
+            onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
+            required
+            className={errors.sex ? 'is-error' : ''}
+          >
+            <option value="">--Select an option--</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
       ),
+      error: (
+        <span className="nes-text is-error">{errors.sex}</span>
+      )
+    },
+    {
+      label: 'Enter your country',
+      input: (
+        <div className="nes-select">
+          <select value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} required>
+            {
+              countries?.sort((a, b) => a.name.common.localeCompare(b.name.common))
+                .map((c) => (
+                  <option key={c.cca2} value={c.cca2}>
+                    {c.name.common}
+                  </option>
+                )) ?? null
+            }
+          </select>
+        </div>
+      ),
+      error: (
+        <span className="nes-text is-error">{errors.country}</span>
+      )
     },
   ];
 
   const handleNext = () => {
+    const newErrors = {
+      name: currentStep === 0 && !formData.name ? "please enter your name" : "",
+      birth: currentStep === 1 && !formData.birth ? "please enter your birth" : "",
+      sex: currentStep === 2 && !formData.sex ? "please select your sex" : "",
+      country: currentStep === 3 && !formData.country ? "please select your country" : ""
+    };
+
+    if (newErrors.name || newErrors.birth || newErrors.sex || newErrors.country) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({ name: "", birth: "", sex: "", country: "" }); // Reset lỗi nếu không có lỗi
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Xử lý đăng ký, có thể gửi dữ liệu lên server
-      console.log('Form data:', formData);
-      // Reset form hoặc điều hướng đến trang khác
+      debugger
+      setValue(formData);
+      router.push('/home');
     }
   };
 
   return (
-    <div>
-      <h1>Signup</h1>
-      <div>
-        <p>{steps[currentStep].label}</p>
+    <div className="flex justify-center items-center w-screen h-screen">
+      <div className='nes-field w-1/3'>
+        <label htmlFor="name_field">{steps[currentStep].label}</label>
         {steps[currentStep].input}
+        {steps[currentStep].error}
+        <span className='mt-8 block'></span>
+        <button className='nes-btn is-primary w-full' onClick={handleNext}>{currentStep < steps.length - 1 ? 'Next' : 'Submit'}</button>
       </div>
-      <button onClick={handleNext}>{currentStep < steps.length - 1 ? 'Next' : 'Submit'}</button>
     </div>
   );
 };
 
 export default SignupPage;
+
+

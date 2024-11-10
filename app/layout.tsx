@@ -1,8 +1,8 @@
-import useAuth from "@/hooks/useAuth";
 import "./globals.css";
 import "nes.css/css/nes.min.css";
 import { Press_Start_2P } from 'next/font/google';
 import AuthCheck from "@/components/AuthCheck";
+import { TransitionProvider } from "@/components/transition-provider";
 
 const pressStart2P = Press_Start_2P({
   weight: '400',

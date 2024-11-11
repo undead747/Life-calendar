@@ -9,7 +9,7 @@ export default function Header() {
 
     return (
         <div className='absolute top-0 left-0 h-1/4 w-full flex justify-between'>
-            <div className='mt-2 ml-2'>
+            <div className='mt-2 ml-2 w-[6/11]'>
                 <Weather />
             </div>
 

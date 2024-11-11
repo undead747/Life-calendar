@@ -36,6 +36,7 @@ const SignupPage = () => {
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="Name"
           className={errors.name ? 'nes-input is-error' : 'nes-input'}
+          style={{borderImageRepeat: 'initial' }}
           required
         />
       ),
@@ -52,6 +53,7 @@ const SignupPage = () => {
           onChange={(e) => setFormData({ ...formData, birth: e.target.value })}
           placeholder="Birth"
           className={errors.birth ? 'nes-input is-error' : 'nes-input'}
+          style={{borderImageRepeat: 'initial' }}
           required
         />
       ),
@@ -69,6 +71,7 @@ const SignupPage = () => {
             onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
             required
             className={errors.sex ? 'is-error' : ''}
+            style={{borderImageRepeat: 'initial' }}
           >
             <option value="">--Select an option--</option>
             <option value="male">Male</option>
@@ -84,7 +87,7 @@ const SignupPage = () => {
       label: 'Enter your country',
       input: (
         <div className="nes-select">
-          <select value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })} required>
+          <select value={formData.country} onChange={(e) => setFormData({ ...formData, country: e.target.value })}  style={{borderImageRepeat: 'initial' }} required>
             {
               countries?.sort((a, b) => a.name.common.localeCompare(b.name.common))
                 .map((c) => (
@@ -119,7 +122,6 @@ const SignupPage = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      debugger
       setValue(formData);
       router.push('/home');
     }
@@ -132,7 +134,7 @@ const SignupPage = () => {
         {steps[currentStep].input}
         {steps[currentStep].error}
         <span className='mt-8 block'></span>
-        <button className='nes-btn is-primary w-full' onClick={handleNext}>{currentStep < steps.length - 1 ? 'Next' : 'Submit'}</button>
+        <button className='nes-btn is-primary w-full' onClick={handleNext}  style={{borderImageRepeat: 'initial' }}>{currentStep < steps.length - 1 ? 'Next' : 'Submit'}</button>
       </div>
     </div>
   );

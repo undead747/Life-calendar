@@ -19,6 +19,8 @@ const useWeather = () => {
             : ''
     );
 
+    if(currPostition) console.log(`https://api.openweathermap.org/data/2.5/weather?lat=${currPostition.latitude}&lon=${currPostition.longitude}&units=metric&appid=${WEATHER_KEY}`);
+
     const fetchWeather = async () => {
         try {
             if (typeof window !== 'undefined' && "geolocation" in navigator) {
@@ -41,8 +43,7 @@ const useWeather = () => {
     };
 
     useEffect(() => {
-            debugger
-            if(data) setWeather(data.data);
+            if(data) setWeather(data);
     }, [data])
 
     useEffect(() => {

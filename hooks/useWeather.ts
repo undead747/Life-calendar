@@ -11,7 +11,7 @@ interface CurrPostition {
 const useWeather = () => {
     const [weather, setWeather] = useState<Weather | null>(null);
     const [currPostition, setCurrPostition] = useState<CurrPostition | null>(null);
-    const [error, setError] = useState<string>();
+    const [error, setError] = useState<string | null>();
     const [loading, setLoading] = useState<boolean>(true);
     const { data, loading: fetchLoading, error: fetchError } = useFetch<any>(
         currPostition

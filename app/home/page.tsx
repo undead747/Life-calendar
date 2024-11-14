@@ -1,4 +1,5 @@
 "use client"
+import Background from "@/components/Background";
 import useFetch from "@/hooks/useFetch";
 import useLocalStorage from "@/hooks/useLocalStorage"
 import { STORAGE_KEY } from "@/lib/const"
@@ -55,6 +56,8 @@ export default function Home() {
                     <span className="is-dark" style={{width: "140%"}}>{dieDateFormat}</span>
                 </div>
             </div>
+
+            <Background style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
         </div>
     )
 }

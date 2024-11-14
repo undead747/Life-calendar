@@ -1,4 +1,3 @@
-import useWeather from "@/hooks/useWeather";
 import React, { useContext } from "react";//+
 import { useWeatherContext } from "@/context/WeatherContext"; // Assuming WeatherContext is defined in a separate file//+
 

@@ -32,7 +32,7 @@ export default function Home() {
 
     return (
         <div className="w-screen h-screen">
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2/3 text-base sm:text-[12px] md:text-[12px] lg:text-base">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[2] w-2/3 text-base sm:text-[12px] md:text-[12px] lg:text-base" style={{zIndex: '2'}}>
                 <img className="w-36 absolute -top-36 transform -translate-x-1/2" src="/images/character.gif" alt="Description of GIF" style={{ left: `${(age / lifeExpectancy) * 100 - 3}%` }} />
                 <img className="w-36 absolute -top-36 transform -translate-x-1/2" src="/images/flag.png" alt="Description of GIF" style={{ left: `${(age / lifeExpectancy) * 100 - 1}%` }} />
                 <img className="w-36 absolute -top-28 left-full transform -translate-x-1/2" src="/images/ghost.gif" alt="Description of GIF" />
@@ -58,6 +58,7 @@ export default function Home() {
             </div>
 
             <Background style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+            <div className="absolute inset-0 bg-black opacity-50 z-[1]"></div>
         </div>
     )
 }

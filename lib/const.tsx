@@ -20,4 +20,5 @@ export interface Weather{
         sunset: number;
     };
     timezone: number;
+    dt: number;
 }

@@ -1,8 +1,9 @@
 import useWeather from "@/hooks/useWeather";
-import React from "react";
+import React, { useContext } from "react";//+
+import { useWeatherContext } from "@/context/WeatherContext"; // Assuming WeatherContext is defined in a separate file//+
 
 const Weather = ({ style }: { style?: React.CSSProperties }) => {
-    const { weather, fetchWeather, error, loading } = useWeather();
+    const { weather, fetchWeather, error, loading } = useWeatherContext();
 
     return (
         <div style={style}>

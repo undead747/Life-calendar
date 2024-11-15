@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClock, faMoon, faSun } from '@fortawesome/free-regular-svg-icons';
 
 const TimeOfDay = () => {
   const [time, setTime] = useState(new Date());
@@ -36,9 +37,9 @@ const TimeOfDay = () => {
       <p>Current time: {formattedTime}</p>
       <p>
         {timeOfDay === 'day' ? (
-          <i className="fas fa-sun"></i> // Icon mặt trời
+        <FontAwesomeIcon icon={faSun} className="h-3 mr-1" />
         ) : (
-          <i className="fas fa-moon"></i> // Icon mặt trăng
+          <FontAwesomeIcon icon={faMoon} className="h-3 mr-1" />
         )}
       </p>
     </div>

@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/customdate";
 // app/page.tsx hoặc pages/index.tsx
 export default function Home() {
     const [storedValue, setValue] = useLocalStorage(STORAGE_KEY)
+
     let indicatorCode = 'SP.DYN.LE00.IN';
     if (storedValue.sex === 'male') {
         indicatorCode = 'SP.DYN.LE00.MA.IN';

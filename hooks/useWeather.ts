@@ -1,66 +1,90 @@
 import { useState, useEffect } from 'react';
 import useFetch from './useFetch';
-import { Weather, WEATHER_KEY } from '@/lib/const';
+import { Weather, WEATHER_KEY, WEATHER_STORAGE_KEY } from '@/lib/const';
+import useLocalStorage from './useLocalStorage';
 
-interface CurrPostition {
+interface CurrPosition {
     latitude: number;
     longitude: number;
 }
 
 const useWeather = () => {
     const [weather, setWeather] = useState<Weather | null>(null);
-    const [currPostition, setCurrPostition] = useState<CurrPostition | null>(null);
-    const [error, setError] = useState<string | null>(null);  // Ensure error state is strictly string or null
-    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [storedValue, setValue] = useLocalStorage(WEATHER_STORAGE_KEY);
 
-    // Only trigger fetch if currPostition is set
-    const { data, loading: fetchLoading, error: fetchError } = useFetch<any>(
-        currPostition
-            ? `https://api.openweathermap.org/data/2.5/weather?lat=${currPostition.latitude}&lon=${currPostition.longitude}&units=metric&appid=${WEATHER_KEY}`
-            : ''
-    );
-
-    // Fetch current weather data
-    const fetchWeather = async () => {
-        setLoading(true); // Start loading when fetchWeather is called
-        try {
+    const getGeolocation = (): Promise<CurrPosition> => {
+        return new Promise((resolve, reject) => {
             if (typeof window !== 'undefined' && 'geolocation' in navigator) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         const { latitude, longitude } = position.coords;
-                        setCurrPostition({ latitude, longitude });
+                        resolve({ latitude, longitude });
                     },
-                    (err) => {
-                        setError('Unable to retrieve location');
-                        setLoading(false);
-                    }
+                    (err) => reject(new Error('Unable to retrieve location'))
                 );
             } else {
-                setError('Geolocation is not supported by this browser');
-                setLoading(false);
+                reject(new Error('Geolocation is not supported by this browser'));
             }
-        } catch (err) {
-            setError('Unable to fetch weather data');
+        });
+    };
+
+    const fetchWeather = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const position = await getGeolocation();
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${position.latitude}&lon=${position.longitude}&units=metric&appid=${WEATHER_KEY}`;
+
+            const { data, error: fetchError } = await useFetch<Weather>(url);
+
+            if (fetchError) {
+                throw new Error('Unable to fetch weather data');
+            }
+
+            const timestamp = new Date().toISOString();
+            const weatherData = { data, timestamp };
+           
+            debugger
+            setValue(weatherData);
+            setWeather(data);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+            setError(message);
+        } finally {
             setLoading(false);
         }
     };
 
-    // Update weather when data changes
     useEffect(() => {
-        if (data) {
-            setWeather(data);
-        }
-    }, [data]);
+        // const initializeWeather = async () => {
+        //     if (storedValue) {
+        //         const storedTimestamp = new Date(storedValue.timestamp);
+        //         const now = new Date();
 
-    // Handle fetch error
-    useEffect(() => {
-        if (fetchError) {
-            setError('Unable to fetch weather data');
-            setLoading(false);
-        }
-    }, [fetchError]);
+        //         if (
+        //             storedTimestamp.getFullYear() === now.getFullYear() &&
+        //             storedTimestamp.getMonth() === now.getMonth() &&
+        //             storedTimestamp.getDate() === now.getDate() &&
+        //             storedTimestamp.getHours() === now.getHours()
+        //         ) {
+        //             setWeather(storedValue.data);
+        //         } 
+        //     } else {
+        //         await fetchWeather();
+        //     }
 
-    return { weather, fetchWeather, error, loading: loading || fetchLoading };
+        //     const interval = setInterval(fetchWeather, 60 * 60 * 1000);
+
+        //     return () => clearInterval(interval);
+        // };
+
+        // initializeWeather();
+    }, []);
+
+    return { weather, fetchWeather, error, loading };
 };
 
 export default useWeather;

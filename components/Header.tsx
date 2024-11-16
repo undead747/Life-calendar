@@ -3,14 +3,14 @@ import useLocalStorage from '@/hooks/useLocalStorage'
 import { STORAGE_KEY } from '@/lib/const'
 import React, { useEffect } from 'react'
 import Weather from './WeatherReport'
-import useWeather from '@/hooks/useWeather'
 import Clock from './Clock'
 
 export default function Header() {
     const [storedValue, setValue] = useLocalStorage(STORAGE_KEY)
+
     return (
-        <div className='absolute top-0 left-0 w-full flex justify-between z-[2] bg-white shadow-lg'>
-            <div className='mt-2 ml-2 w-auto'>
+        <div className='absolute top-0 left-0 w-full flex items-center justify-between z-[2] bg-white shadow-lg pl-2 pr-2'>
+            <div className='w-auto'>
                 <Weather />
             </div>
 

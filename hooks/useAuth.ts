@@ -7,6 +7,7 @@ const useAuth = () => {
 
   useEffect(() => {
     const token = localStorage.getItem(STORAGE_KEY);
+    debugger
     if (!token) {
       router.push('/signup');
     }

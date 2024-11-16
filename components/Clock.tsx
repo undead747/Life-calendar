@@ -1,47 +1,62 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faClock, faMoon, faSun } from '@fortawesome/free-regular-svg-icons';
+import { faMoon, faSun } from '@fortawesome/free-regular-svg-icons';
 
 const TimeOfDay = () => {
   const [time, setTime] = useState(new Date());
-  const [timeOfDay, setTimeOfDay] = useState('day');
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const currentTime = new Date();
-      setTime(currentTime);
-      // Xác định nếu là ban ngày (6h sáng đến 6h chiều)
-      if (currentTime.getHours() >= 6 && currentTime.getHours() < 18) {
-        setTimeOfDay('day');
-      } else {
-        setTimeOfDay('night');
-      }
-    }, 1000); // Cập nhật mỗi giây
+      setTime(new Date());
+    }, 1000);
 
-    return () => clearInterval(interval); // Dọn dẹp khi component bị hủy
+    return () => clearInterval(interval);
   }, []);
 
-  // Định dạng giờ theo định dạng hh:mm
-  const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // Lấy giờ phút mà không có AM/PM
+  const hoursAndMinutes = time.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }).split(' ')[0]; // Chỉ lấy phần giờ và phút
 
-  // Định dạng ngày tháng năm theo định dạng dd mmm yyyy (ví dụ: 29 Dec 2023)
+  // Lấy AM/PM
+  const amPm = time.toLocaleTimeString([], { hour12: true }).split(' ')[1];
+
   const formattedDate = time.toLocaleDateString('en-GB', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
 
+  const isDayTime = time.getHours() >= 6 && time.getHours() < 18;
+
   return (
-    <div>
-      <p>Current date: {formattedDate}</p>
-      <p>Current time: {formattedTime}</p>
-      <p>
-        {timeOfDay === 'day' ? (
-        <FontAwesomeIcon icon={faSun} className="h-3 mr-1" />
-        ) : (
-          <FontAwesomeIcon icon={faMoon} className="h-3 mr-1" />
-        )}
-      </p>
+    <div className="flex items-center space-x-4 p-1">
+      {/* Time */}
+      <div>
+        <span className="text-lg font-semibold">{hoursAndMinutes}</span>
+        <span className="text-xs font-normal text-gray-500 ml-1">{amPm}</span>
+      </div>
+
+      {/* Day/Night Icon */}
+      <span className="flex items-center p-2 bg-gray-100 rounded-full">
+        <span
+          className={`w-10 h-10 flex justify-center items-center rounded-full ${
+            isDayTime ? 'bg-yellow-300' : 'bg-gray-400'
+          }`}
+        >
+          <FontAwesomeIcon
+            icon={isDayTime ? faSun : faMoon}
+            size="lg"
+            className={isDayTime ? 'text-yellow-600' : 'text-gray-100'}
+            aria-label={isDayTime ? 'Sun icon for daytime' : 'Moon icon for nighttime'}
+          />
+        </span>
+      </span>
+
+      {/* Date */}
+      <span className="text-lg font-medium">{formattedDate}</span>
     </div>
   );
 };

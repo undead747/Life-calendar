@@ -1,22 +1,20 @@
-// components/AuthCheck.tsx
 "use client";
 
+import useLocalStorage from "@/hooks/useLocalStorage";
 import { STORAGE_KEY } from "@/lib/const";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-const AuthCheck = ({ children }: { children: React.ReactNode }) => {
+export function AuthCheck({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const token = localStorage.getItem(STORAGE_KEY);
-
+  const [storedValue] = useLocalStorage(STORAGE_KEY);
+  
   useEffect(() => {
-    if (!token) {
-      router.push('/signup');
-    }
-  }, [router]);
+    const currentUrl = typeof window !== "undefined" ? window.location.href : "";
 
-  if (!token) return null
-  return <>{children}</>; 
-};
+    if (!storedValue)  router.push('/signup');
+    else router.push(currentUrl);
+  }, [router, storedValue]);
 
-export default AuthCheck;
+    return <>{children}</>;
+}

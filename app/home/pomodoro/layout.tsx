@@ -1,10 +1,11 @@
+import { PomodoroProvider } from '@/context/PomodoroContent';
 import React from 'react';
 
 const PomodoroLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-      <div>
-        {children}
-      </div>
+      <PomodoroProvider>
+          {children}
+      </PomodoroProvider>
   );
 };
 

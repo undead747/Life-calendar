@@ -22,9 +22,9 @@ const SignupPage = () => {
     country: '',
   });
 
-  const { data: countries, loading, error } = useFetch<Country[]>('https://restcountries.com/v3.1/all');
+  const { data: countries } = useFetch<Country[]>('https://restcountries.com/v3.1/all');
 
-  const [storedValue, setValue] = useLocalStorage(STORAGE_KEY) 
+  const [,setUserInfo] = useLocalStorage(STORAGE_KEY) 
 
   const steps = [
     {
@@ -118,11 +118,11 @@ const SignupPage = () => {
       return;
     }
 
-    setErrors({ name: "", birth: "", sex: "", country: "" }); // Reset lỗi nếu không có lỗi
+    setErrors({ name: "", birth: "", sex: "", country: "" }); 
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      setValue(formData);
+      setUserInfo(formData);
       router.push('/home');
     }
   };

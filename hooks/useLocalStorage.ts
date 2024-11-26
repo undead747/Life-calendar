@@ -1,19 +1,24 @@
-import { useState } from "react";
+'use client'
+import { useState, useEffect } from "react";
 
 function useLocalStorage(key: string) {
-    const initialValue = null;
-    const [storedValue, setStoredValue] = useState<any>(() => {
+    const [storedValue, setStoredValue] = useState<any>(null);
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    useEffect(() => {
+      // This will run only on the client side
       try {
         const item = window.localStorage.getItem(key);
-        if (item)  return JSON.parse(item);
-        
-        return initialValue;
+        if (item) {
+          setStoredValue(JSON.parse(item));
+        }
+        setIsLoaded(true);
       } catch (error) {
         console.error(error);
-        return initialValue;
+        setIsLoaded(true);
       }
-    });
-  
+    }, [key]); // Run effect only when 'key' changes
+
     const setValue = (value: any) => {
       try {
         const valueToStore = value;
@@ -23,8 +28,8 @@ function useLocalStorage(key: string) {
         console.error(error);
       }
     };
-  
-    return [storedValue, setValue] as const;
-  }
-  
-  export default useLocalStorage;
+
+    return [storedValue, setValue, isLoaded] as const;
+}
+
+export default useLocalStorage;

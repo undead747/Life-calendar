@@ -1,18 +1,18 @@
 'use client'
 import useWeather from "@/hooks/useWeather";
 import { Weather } from "@/lib/const";
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 
 type WeatherContextType = {
     weather: Weather | null;
-    fetchWeather: () => Promise<void>;
+    toggleGetWeather: () => Promise<void>;
     error: string | null;
     loading: boolean;
 };
 
 const defaultContextValue: WeatherContextType = {
     weather: null,
-    fetchWeather: async () => {},
+    toggleGetWeather: async () => {},
     error: null,
     loading: false,
 };
@@ -25,11 +25,11 @@ interface WeatherProviderProps {
 }
 
 export const WeatherProvider: React.FC<WeatherProviderProps> = ({ children }) => {
-    const { weather, fetchWeather, error, loading } = useWeather();
+    const { weather, toggleGetWeather, error, loading } = useWeather();
 
     const returnValue = {
         weather,
-        fetchWeather,
+        toggleGetWeather,
         error,
         loading,
     };

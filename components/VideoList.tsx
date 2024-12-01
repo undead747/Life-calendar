@@ -1,13 +1,13 @@
 'use client'
 
-import { SelectedVideo, usePomodoroContext } from "@/context/PomodoroContent";
+import {usePomodoroContext } from "@/context/PomodoroContent";
 import { VIDEO_NAMES } from "@/lib/const";
 import { useRef } from "react";
 
 const VideoList = () => {
     const scrollRef = useRef<HTMLDivElement>(null);
-    const { setSelectedVideo, setIsVideoListVisible } = usePomodoroContext();
-   
+    const { toggleSelectVideo } = usePomodoroContext();
+
     const scrollLeft = () => {
         if (scrollRef.current) {
             scrollRef.current.scrollBy({ left: -200, behavior: "smooth" });
@@ -19,11 +19,6 @@ const VideoList = () => {
             scrollRef.current.scrollBy({ left: 200, behavior: "smooth" });
         }
     };
-
-    const toggleSelectVideo = function(video: SelectedVideo){
-        setSelectedVideo({ video: video.video, thumbnail: video.thumbnail });
-        setIsVideoListVisible(false);
-    }
 
     return (
         <div className="relative">
@@ -44,7 +39,7 @@ const VideoList = () => {
             {/* Video List */}
             <div
                 ref={scrollRef}
-                className="flex space-x-4 w-screen overflow-x-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 ps-4 pe-4 pt-2 pb-4 bg-black bg-opacity-65"
+                className="flex space-x-4 w-screen overflow-x-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 ps-4 pe-4 pt-2 pb-2 bg-black bg-opacity-65"
             >
                 {Object.keys(VIDEO_NAMES).map((key) => {
                     const video = VIDEO_NAMES[key as keyof typeof VIDEO_NAMES];

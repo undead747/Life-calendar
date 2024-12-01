@@ -2,13 +2,14 @@
 import VideoList from '@/components/VideoList';
 import { usePomodoroContext } from '@/context/PomodoroContent';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faCog, faPlay, faPause, faMusic } from '@fortawesome/free-solid-svg-icons';
 import React, { useState, useEffect, useRef } from 'react';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { POMODORO_STORAGE_KEY } from '@/lib/const';
+import Player from '@/components/Player';
 
 export default function Pomodoro() {
-  const { selectedVideo, isPopupVisible, setIsPopupVisible, isVideoListVisible, setIsVideoListVisible } = usePomodoroContext();
+  const { selectedVideo, isPopupVisible, setIsPopupVisible, isVideoListVisible, setIsVideoListVisible, isAudioPlaying, togglePlayPause, isPLayerPopupVisible, setIsPLayerPopupVisible } = usePomodoroContext();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [studyTime, setStudyTime] = useState(25);
   const [restTime, setRestTime] = useState(5);
@@ -21,12 +22,12 @@ export default function Pomodoro() {
   const [pomodoroValue, setPomodoroValue, isPromodoroLoaded] = useLocalStorage(POMODORO_STORAGE_KEY);
 
   useEffect(() => {
-    if(isPromodoroLoaded){
-      if(!pomodoroValue) setPomodoroValue({studyTime, restTime});
+    if (isPromodoroLoaded) {
+      if (!pomodoroValue) setPomodoroValue({ studyTime, restTime });
       else {
         setStudyTime(pomodoroValue.studyTime);
         setRestTime(pomodoroValue.restTime);
-        setTimeLeft(pomodoroValue.studyTime*60);
+        setTimeLeft(pomodoroValue.studyTime * 60);
       }
     }
   }, [isPromodoroLoaded])
@@ -36,18 +37,18 @@ export default function Pomodoro() {
     if (videoRef.current && selectedVideo?.video) {
       const handleLoadedData = () => {
       };
-  
+
       const videoElement = videoRef.current;
-  
+
       videoElement.addEventListener("loadeddata", handleLoadedData);
       videoElement.load();
-  
+
       return () => {
         videoElement.removeEventListener("loadeddata", handleLoadedData);
       };
     }
   }, [selectedVideo]);
-  
+
 
   useEffect(() => {
     if (isRunning && !intervalRef.current) {
@@ -114,8 +115,7 @@ export default function Pomodoro() {
     setIsPopupVisible(false);
     setIsRunning(false);
     setTimeLeft(tempStudyTime * 60);
-    debugger
-    setPomodoroValue({studyTime:tempStudyTime, restTime:tempRestTime});
+    setPomodoroValue({ studyTime: tempStudyTime, restTime: tempRestTime });
     setIsStudyPhase(true);
   };
 
@@ -125,6 +125,13 @@ export default function Pomodoro() {
 
   return (
     <div className="w-screen h-screen">
+      <button
+        onClick={() => setIsPLayerPopupVisible(!isPLayerPopupVisible)}
+        className="absolute top-[125px] right-[5px] z-[1] bg-gray-800 text-white w-10 h-10 flex justify-center items-center rounded-full shadow-md hover:bg-gray-700 focus:outline-none hover:outline-none"
+      >
+        <FontAwesomeIcon icon={faMusic} />
+      </button>
+
       <div className="absolute top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[2] w-[45%] h-2/5 flex flex-col items-center justify-center rounded-sm text-white">
         <h1 className="text-4xl mb-8">{isStudyPhase ? 'Study Time' : 'Rest Time'}</h1>
         <div className="text-6xl font-bold mb-8">{formatTime(timeLeft)}</div>
@@ -158,7 +165,7 @@ export default function Pomodoro() {
       </div>
 
       {isPopupVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[3]">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[3]">
           <div className="bg-white p-8 rounded-md shadow-md text-black">
             <h2 className="text-2xl font-bold mb-4">Edit Times</h2>
             <div className="mb-4">
@@ -197,6 +204,22 @@ export default function Pomodoro() {
         </div>
       )}
 
+      {
+        isPLayerPopupVisible && (
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[3]">
+            <div className="bg-black p-8 rounded-md shadow-md text-black relative">
+              <button
+                onClick={() => setIsPLayerPopupVisible(!isPLayerPopupVisible)}
+                className="absolute top-[125px] right-[5px] z-[1] bg-gray-800 text-white w-10 h-10 flex justify-center items-center rounded-full shadow-md hover:bg-gray-700 focus:outline-none hover:outline-none"
+              >
+                <FontAwesomeIcon icon={faMusic} />
+              </button>
+              <Player />
+            </div>
+          </div>
+        )
+      }
+
       <video
         ref={videoRef}
         autoPlay
@@ -222,6 +245,19 @@ export default function Pomodoro() {
           }`}
       >
         <button
+          onClick={togglePlayPause}
+          className="absolute -top-[45px] right-[55px] bg-gray-800 text-white w-10 h-10 flex justify-center items-center rounded-full shadow-md hover:bg-gray-700 focus:outline-none hover:outline-none"
+        >
+          {
+            isAudioPlaying ? <FontAwesomeIcon
+              icon={faPause}
+            />
+              : <FontAwesomeIcon
+                icon={faPlay}
+              />
+          }
+        </button>
+        <button
           onClick={toggleVideoList}
           className="absolute -top-[45px] right-[5px] bg-gray-800 text-white w-10 h-10 flex justify-center items-center rounded-full shadow-md hover:bg-gray-700 focus:outline-none hover:outline-none"
         >
@@ -237,7 +273,7 @@ export default function Pomodoro() {
         <VideoList />
       </div>
 
-      <div className="absolute top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1] w-[45%] h-2/5 flex flex-col items-center justify-center bg-black opacity-70 rounded-sm text-white">
+      <div className="absolute top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1] w-[45%] h-2/5 flex flex-col items-center justify-center bg-black opacity-60 rounded-sm text-white">
       </div>
     </div>
   );

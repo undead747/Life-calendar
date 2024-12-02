@@ -21,7 +21,7 @@ const VideoList = () => {
     };
 
     return (
-        <div className="relative">
+        <div className="relative h-full">
             {/* Scroll Buttons */}
             <button
                 onClick={scrollLeft}
@@ -39,17 +39,17 @@ const VideoList = () => {
             {/* Video List */}
             <div
                 ref={scrollRef}
-                className="flex space-x-4 w-screen overflow-x-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 ps-4 pe-4 pt-2 pb-2 bg-black bg-opacity-65"
+                className="flex space-x-4 w-screen h-full overflow-x-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 ps-4 pe-4 pt-2 pb-2 bg-black bg-opacity-65"
             >
                 {Object.keys(VIDEO_NAMES).map((key) => {
                     const video = VIDEO_NAMES[key as keyof typeof VIDEO_NAMES];
                     return (
                         <div key={key} className="flex-shrink-0" onClick={() => toggleSelectVideo(video)}>
-                            <div className="relative">
+                            <div className="relative h-full">
                                 <img
                                     src={video.thumbnail}
                                     alt={`Thumbnail for ${key}`}
-                                    className="w-48 h-28 object-cover rounded-md shadow-md"
+                                    className="w-48 h-full object-cover rounded-md shadow-md"
                                 />
                             </div>
                         </div>

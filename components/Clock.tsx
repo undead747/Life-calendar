@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMoon, faSun } from '@fortawesome/free-regular-svg-icons';
 
 const TimeOfDay = () => {
-  const [time, setTime] = useState(() => new Date()); 
   const [hoursAndMinutes, setHoursAndMinutes] = useState<string>('');
   const [amPm, setAmPm] = useState<string>('');
   const [formattedDate, setFormattedDate] = useState<string>('');
@@ -12,32 +11,38 @@ const TimeOfDay = () => {
   const [progress, setProgress] = useState<number | null>(null);
 
   useEffect(() => {
-    setHoursAndMinutes(time.toLocaleTimeString([], {
+    updateClock();
+    const interval = setInterval(() =>{
+      updateClock();
+    }, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  const updateClock = function(){
+    const currTime = new Date();
+
+    setHoursAndMinutes(currTime.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
     }).split(' ')[0]);
 
-    setAmPm(time.toLocaleTimeString([], { hour12: true }).split(' ')[1]);
+    setAmPm(currTime.toLocaleTimeString([], { hour12: true }).split(' ')[1]);
 
-    setFormattedDate(time.toLocaleDateString('en-GB', {
+    setFormattedDate(currTime.toLocaleDateString('en-GB', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
     }));
     
-    setIsDayTime(time.getHours() >= 6 && time.getHours() < 18);
-    const midnightVal = new Date(time);
+    setIsDayTime(currTime.getHours() >= 6 && currTime.getHours() < 18);
+    const midnightVal = new Date(currTime);
     midnightVal.setHours(0, 0, 0, 0); // Set to midnight
     setMidnight(midnight);
     const secondsInDay = 86400; // Total seconds in a day
-    const elapsedSeconds = (time.getTime() - midnightVal.getTime()) / 1000;
+    const elapsedSeconds = (currTime.getTime() - midnightVal.getTime()) / 1000;
     setProgress((elapsedSeconds / secondsInDay) * 100);
-    
-    const interval = setInterval(() => setTime(new Date()), 60000); // Update every minute
-    return () => clearInterval(interval);
-  }, []);
-
+  }
 
   return (
     <div className="flex items-center space-x-4">

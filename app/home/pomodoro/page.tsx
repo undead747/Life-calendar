@@ -241,7 +241,7 @@ export default function Pomodoro() {
       </video>
 
       <div
-        className={`fixed left-0 w-full bg-black bg-opacity-50 transition-all duration-500 ${isVideoListVisible ? 'bottom-0' : '-bottom-[132px]'
+        className={`fixed left-0 w-full h-[132px] bg-black bg-opacity-50 transition-all duration-500 ${isVideoListVisible ? 'bottom-0' : '-bottom-[132px]'
           }`}
       >
         <button
@@ -270,7 +270,9 @@ export default function Pomodoro() {
               />
           }
         </button>
-        <VideoList />
+        <div className='h-full'>
+          <VideoList />
+        </div>
       </div>
 
       <div className="absolute top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1] w-[45%] h-2/5 flex flex-col items-center justify-center bg-black opacity-60 rounded-sm text-white">

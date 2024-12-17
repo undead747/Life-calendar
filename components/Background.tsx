@@ -18,7 +18,7 @@ export default function Background({ style }: { style?: React.CSSProperties }) {
     let audio = null;
 
     if (weather) {
-      const isRaining = weather.weather.some((w) => w.main.toLowerCase() === "rain");
+      const isRaining = weather.weather.some((w: any) => w.main.toLowerCase() === "rain");
       if (isRaining) {
         if (isDaytime) {
           if (month >= 3 && month <= 5) {
@@ -78,6 +78,36 @@ export default function Background({ style }: { style?: React.CSSProperties }) {
             setSrc(VIDEO_NAMES.winter_night_1.video);
             audio = VIDEO_NAMES.winter_night_1.audio;
           }
+        }
+      }
+    } else {
+      if (isDaytime) {
+        if (month >= 3 && month <= 5) {
+          setSrc(VIDEO_NAMES.spring_day_1.video);
+          audio = VIDEO_NAMES.spring_day_1.audio;
+        } else if (month >= 6 && month <= 8) {
+          setSrc(VIDEO_NAMES.summer_day_1.video);
+          audio = VIDEO_NAMES.summer_day_1.audio;
+        } else if (month >= 9 && month <= 11) {
+          setSrc(VIDEO_NAMES.autumn_day_1.video);
+          audio = VIDEO_NAMES.autumn_day_1.audio;
+        } else {
+          setSrc(VIDEO_NAMES.winter_day_1.video);
+          audio = VIDEO_NAMES.winter_day_1.audio;
+        }
+      } else {
+        if (month >= 3 && month <= 5) {
+          setSrc(VIDEO_NAMES.spring_night_1.video);
+          audio = VIDEO_NAMES.spring_night_1.audio;
+        } else if (month >= 6 && month <= 8) {
+          setSrc(VIDEO_NAMES.summer_night_1.video);
+          audio = VIDEO_NAMES.summer_night_1.audio;
+        } else if (month >= 9 && month <= 11) {
+          setSrc(VIDEO_NAMES.autumn_night_1.video);
+          audio = VIDEO_NAMES.autumn_night_1.audio;
+        } else {
+          setSrc(VIDEO_NAMES.winter_night_1.video);
+          audio = VIDEO_NAMES.winter_night_1.audio;
         }
       }
     }

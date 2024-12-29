@@ -9,6 +9,8 @@ export default function Background({ style }: { style?: React.CSSProperties }) {
   const { weather } = useWeatherContext();
   const [src, setSrc] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -112,6 +114,8 @@ export default function Background({ style }: { style?: React.CSSProperties }) {
       }
     }
 
+    setIsPopupVisible(true);
+
     if (audio) {
       const sound = new Audio(audio);
       audioRef.current = sound;
@@ -129,6 +133,17 @@ export default function Background({ style }: { style?: React.CSSProperties }) {
     }
   }, [weather]);
 
+  const togglePlayVideo = () => {
+    if (videoRef.current && src) {
+      videoRef.current.load();
+      videoRef.current
+        .play()
+        .catch((error) => alert("Video playback failed:" + error));
+    }
+
+    setIsPopupVisible(false);
+  }
+
   const togglePlayPause = async () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -145,7 +160,23 @@ export default function Background({ style }: { style?: React.CSSProperties }) {
 
   return (
     <div>
-      <video autoPlay loop muted style={style} key={src}>
+      {isPopupVisible && (
+        <div className="fixed z-10 inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+            <p className="mb-4">We need your permission to play the background video. 😊</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={togglePlayVideo}
+                className="px-4 py-2 bg-blue-500 rounded-md hover:bg-blue-600 text-white focus:outline-none hover:outline-none"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <video ref={videoRef} autoPlay loop muted playsInline style={style} key={src}>
         {src && <source src={src} type="video/mp4" />}
         {!src && <p>Loading video...</p>}
         Your browser does not support the video tag.

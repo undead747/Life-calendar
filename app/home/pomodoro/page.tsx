@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown, faCog, faPlay, faPause, faMusic } from '@fortawesome/free-solid-svg-icons';
 import React, { useState, useEffect, useRef } from 'react';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { POMODORO_STORAGE_KEY } from '@/lib/const';
+import { POMODORO_STORAGE_KEY, TIMER_SOUNDS } from '@/lib/const';
 import Player from '@/components/Player';
 
 export default function Pomodoro() {
@@ -16,10 +16,16 @@ export default function Pomodoro() {
   const [isStudyPhase, setIsStudyPhase] = useState(true);
   const [timeLeft, setTimeLeft] = useState(studyTime * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const [timerProgre, setTimerProgre] = useState(100);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [tempStudyTime, setTempStudyTime] = useState(studyTime);
   const [tempRestTime, setTempRestTime] = useState(restTime);
   const [pomodoroValue, setPomodoroValue, isPromodoroLoaded] = useLocalStorage(POMODORO_STORAGE_KEY);
+  const [isReqPerPopupVisible, setReqPerIsPopupVisible] = useState(false);
+  const [isFirstLoaded, setIsFirstLoaded] = useState(true);
+  const timerAudioRef = useRef<HTMLAudioElement | null>(null);
+  const isStudyPhaseRef = useRef(isStudyPhase);
+  const timeLeftRef = useRef(timeLeft);
 
   useEffect(() => {
     if (isPromodoroLoaded) {
@@ -28,12 +34,12 @@ export default function Pomodoro() {
         setStudyTime(pomodoroValue.studyTime);
         setRestTime(pomodoroValue.restTime);
         setTimeLeft(pomodoroValue.studyTime * 60);
+        timeLeftRef.current = pomodoroValue.studyTime * 60;
       }
     }
   }, [isPromodoroLoaded])
 
   useEffect(() => {
-    //TODO
     if (videoRef.current && selectedVideo?.video) {
       const handleLoadedData = () => {
       };
@@ -43,24 +49,47 @@ export default function Pomodoro() {
       videoElement.addEventListener("loadeddata", handleLoadedData);
       videoElement.load();
 
+      if (isFirstLoaded) {
+        setReqPerIsPopupVisible(true);
+        setIsFirstLoaded(false);
+      }
+
       return () => {
         videoElement.removeEventListener("loadeddata", handleLoadedData);
       };
     }
   }, [selectedVideo]);
 
-
   useEffect(() => {
     if (isRunning && !intervalRef.current) {
       intervalRef.current = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime <= 1) {
-            setIsStudyPhase(!isStudyPhase);
-            return (isStudyPhase ? restTime : studyTime) * 60;
+        if (timeLeftRef.current <= 1) {
+          timeLeftRef.current = (isStudyPhaseRef.current ? restTime : studyTime) * 60;
+          setTimeLeft((isStudyPhaseRef.current ? restTime : studyTime) * 60);
+
+          if (isStudyPhaseRef.current) {
+            const audio = TIMER_SOUNDS.end;
+            const sound = new Audio(audio);
+            timerAudioRef.current = sound;
+          } else {
+            const audio = TIMER_SOUNDS.start;
+            const sound = new Audio(audio);
+            timerAudioRef.current = sound;
           }
 
-          return prevTime - 1;
-        });
+          timerAudioRef.current.play();
+
+          isStudyPhaseRef.current = !isStudyPhaseRef.current;
+          setTimerProgre(0);
+          setIsStudyPhase((prevPhase) => {
+            return !prevPhase;
+          });
+        } else {
+          const totalTm = (isStudyPhaseRef.current ? studyTime : restTime)*60;
+          setTimerProgre(Math.round(timeLeftRef.current / totalTm * 100));
+          timeLeftRef.current = timeLeftRef.current - 1;
+          setTimeLeft(timeLeftRef.current);
+        }
       }, 1000);
     }
 
@@ -87,14 +116,23 @@ export default function Pomodoro() {
     setIsVideoListVisible((prev: boolean) => !prev);
   };
 
-  const toggleTimer = () => {
+  const toggleTimer = async () => {
+    if (!isRunning) {
+      const audio = TIMER_SOUNDS.start;
+      const sound = new Audio(audio);
+      timerAudioRef.current = sound;
+      timerAudioRef.current.play();
+    }
+
     setIsRunning((prev) => !prev);
   };
 
   const resetTimer = () => {
     setIsRunning(false);
     setTimeLeft(studyTime * 60);
+    timeLeftRef.current = studyTime * 60;
     setIsStudyPhase(true);
+    isStudyPhaseRef.current = true;
   };
 
   const formatTime = (time: number) => {
@@ -115,16 +153,45 @@ export default function Pomodoro() {
     setIsPopupVisible(false);
     setIsRunning(false);
     setTimeLeft(tempStudyTime * 60);
+    timeLeftRef.current = tempRestTime * 60;
     setPomodoroValue({ studyTime: tempStudyTime, restTime: tempRestTime });
     setIsStudyPhase(true);
+    isStudyPhaseRef.current = true;
   };
 
   const cancelPopup = () => {
     setIsPopupVisible(false);
   };
 
+  const togglePlayVideo = () => {
+    if (videoRef.current) {
+      videoRef.current.load();
+      videoRef.current
+        .play()
+        .catch((error) => alert("Video playback failed:" + error));
+    }
+
+    setReqPerIsPopupVisible(false);
+  }
+
   return (
     <div className="w-screen h-screen">
+      {isReqPerPopupVisible && (
+        <div className="fixed z-10 inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+            <p className="mb-4">We need your permission to play the background video. 😊</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={togglePlayVideo}
+                className="px-4 py-2 bg-blue-500 rounded-md hover:bg-blue-600 text-white focus:outline-none hover:outline-none"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <button
         onClick={() => setIsPLayerPopupVisible(!isPLayerPopupVisible)}
         className="absolute top-[125px] right-[5px] z-[1] bg-gray-800 text-white w-10 h-10 flex justify-center items-center rounded-full shadow-md hover:bg-gray-700 focus:outline-none hover:outline-none"
@@ -162,6 +229,10 @@ export default function Pomodoro() {
             <FontAwesomeIcon icon={faCog} className="text-white-500 text-4xl" />
           </button>
         </div>
+        <div
+          className={`h-[15px] ${isStudyPhase ? 'bg-green-500' : 'bg-red-500'} absolute bottom-0 left-0 rounded-bl-sm rounded-br-sm`}
+          style={{ width: `${timerProgre}%` }}
+        />
       </div>
 
       {isPopupVisible && (

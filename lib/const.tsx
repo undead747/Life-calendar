@@ -159,6 +159,10 @@ export const VIDEO_NAMES = {
         audio: 'https://res.cloudinary.com/du8gosuud/video/upload/v1732972037/afternoon-suburb-calm_xtb6bm.mp3'
     }
 };
+export const TIMER_SOUNDS = {
+    start: 'https://res.cloudinary.com/du8gosuud/video/upload/v1735402070/end-bell_j2ou2i.mp3',
+    end: 'https://res.cloudinary.com/du8gosuud/video/upload/v1735402071/start-bell_ykjkoi.mp3'
+}
 
 export interface Country {
     cca2: string;

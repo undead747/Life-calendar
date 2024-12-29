@@ -10,7 +10,6 @@ export default function RedirectPagesList() {
             <a
                 href="/home"
                 className="flex items-center ml-8 text-black"
-                style={{borderBottom: '2px solid black'}}
             >
                 <FontAwesomeIcon
                     icon={faHouse}

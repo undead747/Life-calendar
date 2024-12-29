@@ -197,13 +197,13 @@ export default function Home() {
 
     return (
         <div className="w-screen h-screen">
-            <div className="absolute top-[55%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[2] w-[60%] h-[50%] text-base sm:text-[12px] md:text-[12px] lg:text-base overflow-auto" style={{ zIndex: '2' }}>
+            <div className="absolute top-[55%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[2] w-[65%] h-[50%] text-base sm:text-[12px] md:text-[12px] lg:text-base overflow-auto" style={{ zIndex: '2' }}>
                 {renderByToggle()}
             </div>
 
             <Background style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
            
-            <div className="absolute top-[55%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[60%] h-[50%] inset-0 z-[1]">
+            <div className="absolute top-[55%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[65%] h-[50%] inset-0 z-[1]">
                 <div className="w-full h-full  bg-black opacity-70 rounded-sm"></div>
                 <div className="absolute -bottom-12 right-0 opacity-100">
                     <ToggleSwitch isChecked={isToggled} onToggle={handleToggleChange} />

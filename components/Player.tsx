@@ -240,7 +240,7 @@ const Player = () => {
 
         <div className='h-[25vh] overflow-y-auto mb-0 rounded-sm'>
           <p className='text-[12px] mb-4'>Playlist: </p>
-          <ul className="list-disc bg-[#1e1b1b] mb-0" style={{height: 'calc(100% - 48px)'}}>
+          <ul className="list-disc bg-[#1e1b1b] mb-0" style={{height: 'calc(100% - 35px)'}}>
             {queue.map((track, index) => (
               <li key={index} onClick={() => togglePlay(index)} className={`flex items-center ${track.id === currentTrack?.id ? 'bg-neutral-800' : 'bg-[#1e1b1b]'} border-b-[1px] border-b-[rgba(255,255,255,0.1)]`}>
                 <Image className='m-2 mr-4 w-[40px] h-[40px] rounded-sm' src={track.thumbnail || ''} alt="Character GIF" width={50} height={50} />

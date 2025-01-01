@@ -123,6 +123,11 @@ const Player = () => {
       return;
     }
 
+    if(idx === null && !playing && currentTrack !== null){
+      setPlaying(true);
+      return;
+    }
+
     if (idx !== null) currIdx = idx;
     const nextTrack = queue[currIdx];
     setCurrentTrack(nextTrack);
@@ -233,7 +238,7 @@ const Player = () => {
               step="0.01"
               value={volume}
               onChange={(e) => setVolume(Number(e.target.value))}
-              className="w-full"
+              className="w-full h-2 bg-red rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
             />
           </div>
         </div>

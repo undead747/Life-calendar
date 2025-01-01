@@ -2,7 +2,7 @@
 import VideoList from '@/components/VideoList';
 import { usePomodoroContext } from '@/context/PomodoroContent';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown, faCog, faPlay, faPause, faMusic } from '@fortawesome/free-solid-svg-icons';
+import { faChevronUp, faChevronDown, faCog, faPlay, faPause, faMusic, faTimes } from '@fortawesome/free-solid-svg-icons';
 import React, { useState, useEffect, useRef } from 'react';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { POMODORO_STORAGE_KEY, TIMER_SOUNDS } from '@/lib/const';
@@ -85,7 +85,7 @@ export default function Pomodoro() {
             return !prevPhase;
           });
         } else {
-          const totalTm = (isStudyPhaseRef.current ? studyTime : restTime)*60;
+          const totalTm = (isStudyPhaseRef.current ? studyTime : restTime) * 60;
           setTimerProgre(Math.round(timeLeftRef.current / totalTm * 100));
           timeLeftRef.current = timeLeftRef.current - 1;
           setTimeLeft(timeLeftRef.current);
@@ -133,6 +133,7 @@ export default function Pomodoro() {
     timeLeftRef.current = studyTime * 60;
     setIsStudyPhase(true);
     isStudyPhaseRef.current = true;
+    setTimerProgre(100);
   };
 
   const formatTime = (time: number) => {
@@ -276,19 +277,20 @@ export default function Pomodoro() {
       )}
 
       {
-        isPLayerPopupVisible && (
-          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[3]">
-            <div className="bg-black p-8 rounded-md shadow-md text-black relative">
-              <button
-                onClick={() => setIsPLayerPopupVisible(!isPLayerPopupVisible)}
-                className="absolute top-[125px] right-[5px] z-[1] bg-gray-800 text-white w-10 h-10 flex justify-center items-center rounded-full shadow-md hover:bg-gray-700 focus:outline-none hover:outline-none"
-              >
-                <FontAwesomeIcon icon={faMusic} />
-              </button>
-              <Player />
-            </div>
+        <div
+          className={`fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[3] ${isPLayerPopupVisible ? 'block' : 'hidden'
+            }`}
+        >
+          <div className="bg-[#0E1111] p-6 pt-16 rounded-md shadow-md text-white relative">
+            <button
+              onClick={() => setIsPLayerPopupVisible(false)}
+              className="absolute top-[20px] right-[25px] z-[1] bg-white text-black w-10 h-10 flex justify-center items-center rounded-full shadow-md focus:outline-none hover:outline-none"
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+            <Player />
           </div>
-        )
+        </div>
       }
 
       <video

@@ -5,6 +5,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faPause } from '@fortawesome/free-solid-svg-icons';
 
+interface WeatherData{
+  main: string
+}
+
 export default function Background({ style }: { style?: React.CSSProperties }) {
   const { weather } = useWeatherContext();
   const [src, setSrc] = useState<string | null>(null);
@@ -20,7 +24,7 @@ export default function Background({ style }: { style?: React.CSSProperties }) {
     let audio = null;
 
     if (weather) {
-      const isRaining = weather.weather.some((w: any) => w.main.toLowerCase() === "rain");
+      const isRaining = weather.weather.some((w: WeatherData) => w.main.toLowerCase() === "rain");
       if (isRaining) {
         if (isDaytime) {
           if (month >= 3 && month <= 5) {

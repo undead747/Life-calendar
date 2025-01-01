@@ -5,6 +5,13 @@ import { useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import Image from 'next/image';
 
+interface YoutubeData {
+  title: string | null,
+  author: string | null,
+  thumbnail: string | null,
+  duration: Duration | null,
+}
+
 interface Duration {
   hours: number;
   minutes: number;
@@ -20,7 +27,7 @@ interface Track {
   duration: Duration | null
 }
 
-const getYoutubeTitle = async (url: string, apiKey: string): Promise<any | null> => {
+const getYoutubeTitle = async (url: string, apiKey: string): Promise<YoutubeData | null> => {
   try {
     const videoId = new URL(url).searchParams.get('v');
     if (!videoId) return null;
@@ -73,12 +80,12 @@ const Player = () => {
   const addToQueue = async (url: string) => {
     const data = await getYoutubeTitle(url, 'AIzaSyCl--8u1rSWP_BSn8QXjilA8Q5yvlljSrk');
     const newTrack: Track = {
-      title: data.title,
-      author: data.author,
-      thumbnail: data.thumbnail,
+      title: data?.title || null,
+      author: data?.author || null,
+      thumbnail: data?.thumbnail || null,
       url: url,
       id: maxTrackId.current,
-      duration: data.duration
+      duration: data?.duration || null
     };
 
     setQueue((prevQueue) => [...prevQueue, newTrack]);

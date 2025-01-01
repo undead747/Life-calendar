@@ -229,7 +229,7 @@ const Player = () => {
               />
             </button>
           </div>
-          <div className="flex w-[25%]">
+          <div className="flex w-[25%] justify-center items-center">
             <FontAwesomeIcon icon={faVolumeUp} className="mr-4 text-gray-400" />
             <input
               type="range"

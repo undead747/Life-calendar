@@ -1,5 +1,5 @@
 // components/AudioPlayer.tsx
-import { faBackwardStep, faForwardStep, faPause, faPlay, faVolumeUp } from '@fortawesome/free-solid-svg-icons';
+import { faBackwardStep, faForwardStep, faPause, faPlay, faTrashAlt, faVolumeUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
@@ -22,7 +22,7 @@ interface Track {
   title: string | null,
   author: string | null,
   thumbnail: string | null,
-  url: string,
+  url: string | null,
   id: number,
   duration: Duration | null
 }
@@ -68,6 +68,16 @@ const parseISODuration = (isoDuration: string) => {
   return { hours, minutes, seconds };
 };
 
+function cleanYouTubeUrl(url: string) {
+  const urlObj = new URL(url);
+  const videoId = urlObj.searchParams.get('v');
+
+  if (videoId) {
+    return `https://www.youtube.com/watch?v=${videoId}`;
+  }
+  return url;
+}
+
 const Player = () => {
   const [queue, setQueue] = useState<Track[]>([]);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
@@ -78,6 +88,7 @@ const Player = () => {
   const maxTrackId = useRef<number>(0);
 
   const addToQueue = async (url: string) => {
+    url = cleanYouTubeUrl(url);
     const data = await getYoutubeTitle(url, 'AIzaSyCl--8u1rSWP_BSn8QXjilA8Q5yvlljSrk');
     const newTrack: Track = {
       title: data?.title || null,
@@ -123,7 +134,7 @@ const Player = () => {
       return;
     }
 
-    if(idx === null && !playing && currentTrack !== null){
+    if (idx === null && !playing && currentTrack !== null) {
       setPlaying(true);
       return;
     }
@@ -160,6 +171,29 @@ const Player = () => {
 
     return `${formattedMinutes}:${formattedSeconds}`;
   };
+
+  const removeTrack = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
+    e.stopPropagation(); // Prevent parent event triggers
+  
+    setQueue((prevQueue) => {
+      const updatedQueue = prevQueue.filter((track) => track.id !== id);
+  
+      if (currentTrack?.id === id) {
+        if (updatedQueue.length > 0) {
+          const currentIndex = prevQueue.findIndex((track) => track.id === id);
+          const nextIndex = (currentIndex + 1) % updatedQueue.length;
+          setCurrentTrack(updatedQueue[nextIndex]);
+        } else {
+          setCurrentTrack(null);
+          setCurrentTime(0);
+          setPlaying(false);
+        }
+      }
+  
+      return updatedQueue;
+    });
+  };
+  
 
   return (
     <div className='w-[42vw]'>
@@ -245,25 +279,36 @@ const Player = () => {
 
         <div className='h-[25vh] overflow-y-auto mb-0 rounded-sm'>
           <p className='text-[12px] mb-4'>Playlist: </p>
-          <ul className="list-disc bg-[#1e1b1b] mb-0" style={{height: 'calc(100% - 35px)'}}>
+          <ul className="list-disc bg-[#1e1b1b] mb-0" style={{ height: 'calc(100% - 35px)' }}>
             {queue.map((track, index) => (
               <li key={index} onClick={() => togglePlay(index)} className={`flex items-center ${track.id === currentTrack?.id ? 'bg-neutral-800' : 'bg-[#1e1b1b]'} border-b-[1px] border-b-[rgba(255,255,255,0.1)]`}>
                 <Image className='m-2 mr-4 w-[40px] h-[40px] rounded-sm' src={track.thumbnail || ''} alt="Character GIF" width={50} height={50} />
-                <div className='flex flex-col mr-8' style={{ width: 'calc(100% - 200px)' }}>
+                <div className='flex flex-col mr-8' style={{ width: 'calc(100% - 240px)' }}>
                   <span className="text-[12px] text-gray-200 truncate">{track.title}</span>
                   <span className="text-[12px] text-gray-400 truncate mt-1">{track.author}</span>
                 </div>
                 <span className='ml-auto mr-2 text-[12px] text-gray-400'>
                   {track.duration ? formatDuration(track.duration) : '00:00'}
                 </span>
+                <span className='ml-auto mr-2 text-[12px] text-gray-400'>
+                  <button
+                    onClick={(e) => removeTrack(e, track.id)}
+                    className=" text-gray-100 w-10 h-10 flex justify-center items-center rounded-full shadow-md focus:outline-none hover:outline-none"
+                  >
+                    <FontAwesomeIcon
+                      icon={faTrashAlt}
+                      size='2x'
+                    />
+                  </button>
+                </span>
               </li>
             ))}
           </ul>
         </div>
 
-        {currentTrack && (
+        {currentTrack && currentTrack.url && (
           <ReactPlayer
-            url={currentTrack?.url}
+            url={currentTrack.url}
             playing={playing}
             onEnded={playNextTrack}
             onProgress={handleProgress}

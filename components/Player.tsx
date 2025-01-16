@@ -5,6 +5,11 @@ import { useRef, useState } from 'react';
 import ReactPlayer from 'react-player';
 import Image from 'next/image';
 
+interface URLId {
+  id: string,
+  isList: boolean
+}
+
 interface YoutubeData {
   title: string | null,
   author: string | null,
@@ -68,6 +73,61 @@ const parseISODuration = (isoDuration: string) => {
   return { hours, minutes, seconds };
 };
 
+function getURLId(url: string): URLId | null {
+  const shortUrlMatch = url.match(/https:\/\/youtu\.be\/([a-zA-Z0-9_-]+)/);
+  if (shortUrlMatch) {
+    return {
+      id: shortUrlMatch[1],
+      isList: false
+    };
+  }
+  const fullUrlMatch = url.match(/https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/);
+  if (fullUrlMatch) {
+    return {
+      id: fullUrlMatch[1],
+      isList: false
+    };
+  }
+
+  const playlistUrlMatch = url.match(/https:\/\/www\.youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)/);
+  if (playlistUrlMatch) {
+    return {
+      id: playlistUrlMatch[1],
+      isList: true
+    };
+  }
+
+  return null;
+}
+
+function getPlaylist(id: string): string[]{
+  try {
+    let nextPageToken = '';
+    let allVideos: string[] = [];
+
+    // Lặp qua các trang nếu có
+    do {
+      const response = await axios.get(`https://www.googleapis.com/youtube/v3/playlistItems`, {
+        params: {
+          part: 'snippet',
+          playlistId: playlistId,
+          key: API_KEY,
+          pageToken: nextPageToken, // Lấy video từ trang tiếp theo (nếu có)
+          maxResults: 50, // Số video tối đa trên mỗi trang
+        },
+      });
+
+      // Thêm video vào danh sách
+      allVideos = [...allVideos, ...response.data.items];
+      nextPageToken = response.data.nextPageToken; // Lấy token của trang tiếp theo
+
+    } while (nextPageToken); // Lặp cho đến khi không còn trang tiếp theo
+
+  } catch (err) {
+  } finally {
+  }
+}
+
 function cleanYouTubeUrl(url: string) {
   const urlObj = new URL(url);
   const videoId = urlObj.searchParams.get('v');
@@ -88,19 +148,25 @@ const Player = () => {
   const maxTrackId = useRef<number>(0);
 
   const addToQueue = async (url: string) => {
-    url = cleanYouTubeUrl(url);
-    const data = await getYoutubeTitle(url, 'AIzaSyCl--8u1rSWP_BSn8QXjilA8Q5yvlljSrk');
-    const newTrack: Track = {
-      title: data?.title || null,
-      author: data?.author || null,
-      thumbnail: data?.thumbnail || null,
-      url: url,
-      id: maxTrackId.current,
-      duration: data?.duration || null
-    };
+    const id = getURLId(url);
+    if (id === null) return;
 
-    setQueue((prevQueue) => [...prevQueue, newTrack]);
-    maxTrackId.current = maxTrackId.current + 1;
+    if (!id.isList) {
+      const data = await getYoutubeTitle(id.id, 'AIzaSyCl--8u1rSWP_BSn8QXjilA8Q5yvlljSrk');
+      const newTrack: Track = {
+        title: data?.title || null,
+        author: data?.author || null,
+        thumbnail: data?.thumbnail || null,
+        url: url,
+        id: maxTrackId.current,
+        duration: data?.duration || null
+      };
+
+      setQueue((prevQueue) => [...prevQueue, newTrack]);
+      maxTrackId.current = maxTrackId.current + 1;
+    }else{
+
+    }
   };
 
   const playNextTrack = () => {
@@ -174,10 +240,10 @@ const Player = () => {
 
   const removeTrack = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
     e.stopPropagation(); // Prevent parent event triggers
-  
+
     setQueue((prevQueue) => {
       const updatedQueue = prevQueue.filter((track) => track.id !== id);
-  
+
       if (currentTrack?.id === id) {
         if (updatedQueue.length > 0) {
           const currentIndex = prevQueue.findIndex((track) => track.id === id);
@@ -189,11 +255,11 @@ const Player = () => {
           setPlaying(false);
         }
       }
-  
+
       return updatedQueue;
     });
   };
-  
+
 
   return (
     <div className='w-[42vw]'>
